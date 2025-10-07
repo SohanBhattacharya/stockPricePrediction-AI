@@ -8,8 +8,6 @@
 
 ---
 
----
-
 ## 🚀 Overview
 
 **Stock Price Prediction AI** is an interactive **Streamlit web app** that combines **machine learning**, **financial data**, and **natural language processing (NLP)** to help users explore market movements, investor sentiment, and price trends — all in one clean dashboard.
