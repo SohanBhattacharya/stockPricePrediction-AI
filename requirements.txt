@@ -4,8 +4,14 @@ yfinance
 pillow
 plotly
 pandas
+numpy
+scikit-learn
+tensorflow
+pandas_market_calendars
 requests
 beautifulsoup4
 textblob
 huggingface_hub
 python-dotenv
+nltk
+transformers
