@@ -1,8 +1,5 @@
-Here’s a **detailed `README.md`** draft for the repository stockPricePrediction‑AI. You can copy it into your repo, edit any placeholders, and commit.
-
----
-
-```markdown
+````
+````
 # stockPricePrediction-AI  
 An AI-powered financial dashboard that blends real-time stock data, market sentiment, and visualization for smarter investing insights.
 
@@ -21,7 +18,9 @@ At its core the system:
 - ✅ Modular Codebase – Clear separation of concerns (data fetch, NLP, UI).  
 - ✅ Configurable – Uses environment variables for API/tokens, making it secure and flexible.
 
-## Tech Stack  
+## Tech Stack
+
+ 
 | Layer            | Technologies                                |
 |------------------|---------------------------------------------|
 | Front-end / UI   | Streamlit, streamlit-extras                  |
@@ -57,7 +56,7 @@ Below is a discussion of the software’s architecture and how the code is facto
 ### Code-Organization & Factoring  
 Here is a suggested high-level folder/file structure (the repository already uses a flat script layout; you might reorganize as you grow):
 
-```
+````
 
 stockpriceprediction-ai/
 ├── .devcontainer/
@@ -75,6 +74,7 @@ stockpriceprediction-ai/
 ├── requirements.txt
 ├── .env.example
 └── README.md
+
 
 ````
 
@@ -103,12 +103,13 @@ stockpriceprediction-ai/
 - **Deployment considerations**: Dockerfile, CI/CD, GitHub Actions, and external deployment (Streamlit Cloud, Heroku, AWS) can make the app production-ready.  
 - **Multiple tickers / portfolio view**: The architecture easily extends to multiple tickers, enabling portfolio analytics and comparative sentiment.
 
+
 ## Installation  
 1. Clone the repository:  
    ```bash
    git clone https://github.com/SohanBhattacharya/stockPricePrediction-AI.git  
    cd stockPricePrediction-AI  
-````
+
 
 2. Install dependencies:
 
@@ -161,21 +162,12 @@ This project is released under the **MIT License** — feel free to use, modify 
 
 ## Author
 
-**Sohan Bhattacharya** — Developer & Data Enthusiast.
+**Sohan Bhattacharya** — Full Stack Developer & Machine Learning Engineer.
+**Prabhat Shaw** — UI & UX Designer I.
+**Antar Paul** — UI & UX Designer II.
 Building AI-powered financial tools.
 GitHub: [SohanBhattacharya](https://github.com/SohanBhattacharya)
 
----
+````
 
-```
 
----
-
-### 🔧 Next Steps  
-- Feel free to **update the placeholders** (e.g., tokens, author bio) as appropriate.  
-- You might also adjust the folder/file names if you refactor the code.  
-- Once updated, commit the `README.md` and push to the repository.
-
-If you like, I can **generate the `README.md` file for you** and push it as part of a full refactor (Option 1) or generate the initial test/CI scaffold (Option 2). Would you like me to proceed with one of those?
-::contentReference[oaicite:6]{index=6}
-```
