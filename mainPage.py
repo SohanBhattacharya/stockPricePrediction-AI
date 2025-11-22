@@ -137,7 +137,7 @@ def main():
         name = companyName()
         company_name = st.selectbox("Select Company", list(name.company_tickers.keys()))
         ticker = name.company_tickers[company_name]
-        st.write("Example: AAPL, TSLA, INFY")
+        st.write("Example: Apple Inc., Meta Platforms Inc., Tesla Inc.")
 #--------------------------------------------------------------------------------------------------
 
         # Sidebar chatbot
@@ -660,3 +660,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
