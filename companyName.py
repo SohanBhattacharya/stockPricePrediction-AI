@@ -1,5 +1,5 @@
 class companyName:
-    stock_tickers = {
+    company_tickers = {
     "Apple Inc.": "AAPL",
     "Microsoft Corporation": "MSFT",
     "Amazon.com Inc.": "AMZN",
@@ -97,4 +97,5 @@ class companyName:
     "ING Group": "ING",
     "Roche Holding AG": "ROG.SW"
 }
+
 
