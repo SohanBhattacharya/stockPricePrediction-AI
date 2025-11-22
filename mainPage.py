@@ -1,16 +1,14 @@
-import streamlit as st
+
 from streamlit_extras.metric_cards import style_metric_cards
-import yfinance as yf
+
 from PIL import Image
 from plotly.subplots import make_subplots
 from nlp import NewsAndSentimentAnalysis as nlp
 from priceFetch import FetchPrice
-from datetime import datetime, timedelta, date
-import pandas as pd
-import plotly.graph_objects as go
+
 from datetime import datetime, timedelta, date
 import math
-
+from companyName import companyName
 import numpy as np
 import pandas as pd
 import pandas_market_calendars as mcal
@@ -136,7 +134,9 @@ def main():
         )
         st.markdown('<h1 class="centered-title">📊 Enter your stock ticker:</h1>', unsafe_allow_html=True)
 
-        ticker = st.text_input("Enter Stock Ticker", "INFY")
+        name = companyName()
+        company_name = st.selectbox("Select Company", list(name.company_tickers.keys()))
+        ticker = name.company_tickers[company_name]
         st.write("Example: AAPL, TSLA, INFY")
 #--------------------------------------------------------------------------------------------------
 
