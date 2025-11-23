@@ -5,8 +5,8 @@ from PIL import Image
 from plotly.subplots import make_subplots
 from nlp import NewsAndSentimentAnalysis as nlp
 from priceFetch import FetchPrice
-
-from datetime import datetime, timedelta, date
+import plotly.express as px
+from datetime import datetime, timedelta
 import math
 from companyName import companyName
 import numpy as np
@@ -182,7 +182,7 @@ def main():
                     latest_close = float(data["Close"].iloc[-1])
                     prev_close = float(data["Close"].iloc[-2])
 
-                    # Create indicator + line chart
+                    # Indicator + line chart (unchanged)
                     fig = go.Figure(go.Indicator(
                         mode="number+delta",
                         value=round(latest_close, 2),
@@ -196,12 +196,10 @@ def main():
                         domain={'y': [0, 1], 'x': [0.25, 0.75]}
                     ))
 
-                    # Fix: ensure we’re passing a Series, not DataFrame
                     close_prices = data["Close"]
                     if isinstance(close_prices, pd.DataFrame):
                         close_prices = close_prices.iloc[:, 0]
 
-                    # Add line chart
                     fig.add_trace(go.Scatter(
                         y=close_prices.values,
                         line=dict(color="orange"),
@@ -214,34 +212,109 @@ def main():
                         height=500
                     )
 
-                    # Split layout into two columns
-                    col1, col2 = st.columns([1.8, 1.2])  # wider for graph, narrower for overview
+                    # Split layout into two columns: left for line+sunburst, right for overview
+                    col1, col2 = st.columns([1.8, 1.2])
 
+                    # ---------------- LEFT: main chart + sunburst ----------------
                     with col1:
-                        st.plotly_chart(fig, use_column_width=True)
+                        st.plotly_chart(fig, use_container_width=True)
 
-                    with col2:
-                        with st.container(border=True):
+                        # ---------------------------------
+                        # Generic recursive flattener (unchanged)
+                        # ---------------------------------
+                        def flatten_hierarchy(company_name, structure):
+                            rows = []
+
+                            def recurse(path, node):
+                                if isinstance(node, dict):
+                                    for k, v in node.items():
+                                        recurse(path + [str(k)], v)
+                                elif isinstance(node, (list, tuple, set)):
+                                    for elem in node:
+                                        if isinstance(elem, (dict, list, tuple, set)):
+                                            recurse(path, elem)
+                                        else:
+                                            recurse(path + [str(elem)], None)
+                                else:
+                                    path_nonempty = [p for p in path if p is not None and str(p) != "None"]
+                                    category = path_nonempty[0] if len(path_nonempty) >= 1 else None
+                                    subcategory = path_nonempty[1] if len(path_nonempty) >= 2 else None
+                                    if len(path_nonempty) >= 3:
+                                        product = " / ".join(path_nonempty[2:])
+                                    else:
+                                        product = None
+                                    rows.append([company_name, category, subcategory, product])
+
+                            recurse([], structure)
+                            df = pd.DataFrame(rows, columns=["Company", "Category", "Subcategory", "Product"])
+                            if df.empty:
+                                return df
+                            df["Value"] = 1
+                            return df
+
+                        # Instantiate the helper that contains PRODUCT_PORTFOLIOS
+                        chart = companyName()
+
+                        # Build sunburst and return figure (no fig.show())
+                        def build_sunburst_from_ticker(ticker):
+                            ticker = ticker.upper()
+                            if ticker not in chart.PRODUCT_PORTFOLIOS:
+                                # Graceful fallback: return None so caller can handle
+                                return None
+
+                            # Try to get company long name, fallback to ticker
                             try:
                                 stock = yf.Ticker(ticker)
-                                info = stock.info
+                                name = stock.info.get("longName") or stock.info.get("shortName") or ticker
+                            except Exception:
+                                name = ticker
 
-                                company_name = info.get("longName", "N/A")
-                                sector = info.get("sector", "N/A")
-                                industry = info.get("industry", "N/A")
-                                about = info.get("longBusinessSummary", "No description available.")
-                                st.subheader("🏢 Company Overview")
-                                st.markdown(f"**Name:** {company_name}")
-                                st.markdown(f"**Sector:** {sector}")
-                                st.markdown(f"**Industry:** {industry}")
-                                st.markdown(f"**About:**\n\n{about}")
+                            df = flatten_hierarchy(name, chart.PRODUCT_PORTFOLIOS[ticker])
+                            if df.empty:
+                                return None
 
-                            except Exception as e:
-                                st.error(f"Error fetching company overview: {e}")
+                            df_display = df.fillna("")
+
+                            sun_fig = px.sunburst(
+                                df_display,
+                                path=["Company", "Category", "Subcategory", "Product"],
+                                values="Value",
+                                title=f"{name} ({ticker}) — Product Portfolio Breakdown",
+                                width=700,
+                                height=700
+                            )
+                            # Return the Plotly figure (do not call fig.show())
+                            return sun_fig
+
+                        # Build and render the sunburst inside col1
+                        sun_fig = build_sunburst_from_ticker(ticker)
+                        if sun_fig is not None:
+                            st.plotly_chart(sun_fig, use_container_width=True)
+                        else:
+                            st.info("Product portfolio not available for this ticker.")
+
+                    # ---------------- RIGHT: Company Overview ----------------
+                    with col2:
+                        # Removed unsupported 'border=True' param from st.container
+                        try:
+                            stock = yf.Ticker(ticker)
+                            info = stock.info
+
+                            company_name = info.get("longName", "N/A")
+                            sector = info.get("sector", "N/A")
+                            industry = info.get("industry", "N/A")
+                            about = info.get("longBusinessSummary", "No description available.")
+                            st.subheader("🏢 Company Overview")
+                            st.markdown(f"**Name:** {company_name}")
+                            st.markdown(f"**Sector:** {sector}")
+                            st.markdown(f"**Industry:** {industry}")
+                            st.markdown(f"**About:**\n\n{about}")
+
+                        except Exception as e:
+                            st.error(f"Error fetching company overview: {e}")
 
                 else:
                     st.error("❌ No data found for this ticker.")
-
         #------------------------Place for ML Models-----------------------------------------------
         with pricePrediction:
             left_spacer, graph_col, model_col, right_spacer = st.columns([0.01, 2, 2, 0.01])
@@ -660,4 +733,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
