@@ -132,7 +132,7 @@ def main():
             """,
             unsafe_allow_html=True
         )
-        st.markdown('<h1 class="centered-title">📊 Enter your stock ticker:</h1>', unsafe_allow_html=True)
+        st.markdown('<h1 class="centered-title">📊 Enter your Company Name:</h1>', unsafe_allow_html=True)
 
         name = companyName()
         company_name = st.selectbox("Select Company", list(name.company_tickers.keys()))
@@ -733,3 +733,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
