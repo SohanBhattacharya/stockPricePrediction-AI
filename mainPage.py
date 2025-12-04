@@ -1,4 +1,3 @@
-
 from streamlit_extras.metric_cards import style_metric_cards
 
 from PIL import Image
@@ -107,14 +106,14 @@ def main():
                 justify-content: space-between; /* spread tabs evenly */
             }
             .stTabs [data-baseweb="tab"] {
-                flex-grow: 1;                  /* make tabs expand equally */
-                text-align: center;            /* center text */
+                flex-grow: 1;                /* make tabs expand equally */
+                text-align: center;          /* center text */
             }
             .stTabs [data-baseweb="tab"] p {
-                white-space: nowrap;           /* keep text in one line */
-                overflow: hidden;              /* hide overflow */
-                text-overflow: ellipsis;       /* show ... if text is too long */
-                font-size: 16px;               /* you can tweak */
+                white-space: nowrap;         /* keep text in one line */
+                overflow: hidden;            /* hide overflow */
+                text-overflow: ellipsis;     /* show ... if text is too long */
+                font-size: 16px;             /* you can tweak */
             }
             </style>
             """,
@@ -324,7 +323,7 @@ def main():
                     st.subheader("⚙️ Training Configuration")
                     training_data = st.selectbox("Select Training Data:", ["1 Years", "3 Years", "6 Years", "9 Years"])
                     prediction_data = st.selectbox("Select Prediction Data:",
-                                                   ["1 Month", "3 Months", "6 Months", "9 Months"])
+                                                     ["1 Month", "3 Months", "6 Months", "9 Months"])
 
                     if st.button("🚀 Train AI Model"):
                         # Determine date range correctly: start < end
@@ -604,42 +603,47 @@ def main():
             # Convert to DataFrame
             df = pd.DataFrame(news_data)
 
-            # Layout: Two columns
-            col1, col2 = st.columns([2, 1])
+            # --- START OF FIX ---
+            if df.empty or "sentiment" not in df.columns:
+                st.info(f"No news data or sentiment analysis results found for **{ticker}**.")
+            else:
+            # --- END OF FIX ---
+                # Layout: Two columns
+                col1, col2 = st.columns([2, 1])
 
-            with col1:
-                st.subheader("Latest News")
-                filter_option = st.radio("Filter News", ["All", "Positive", "Negative", "Neutral"], horizontal=True)
+                with col1:
+                    st.subheader("Latest News")
+                    filter_option = st.radio("Filter News", ["All", "Positive", "Negative", "Neutral"], horizontal=True)
 
-                filtered_df = df if filter_option == "All" else df[df["sentiment"] == filter_option]
+                    filtered_df = df if filter_option == "All" else df[df["sentiment"] == filter_option]
 
-                for i, row in filtered_df.iterrows():
-                    with st.container():
-                        st.markdown(f"### {row['title']}")
-                        st.markdown(f"[Read more]({row['link']})")
-                        sentiment_color = "green" if row["sentiment"] == "Positive" else "red" if row[
+                    for i, row in filtered_df.iterrows():
+                        with st.container():
+                            st.markdown(f"### {row['title']}")
+                            st.markdown(f"[Read more]({row['link']})")
+                            sentiment_color = "green" if row["sentiment"] == "Positive" else "red" if row[
                                                                                                       "sentiment"] == "Negative" else "gray"
-                        st.markdown(f"**Sentiment:** <span style='color:{sentiment_color}'>{row['sentiment']}</span>",
-                                    unsafe_allow_html=True)
-                        st.markdown("---")
+                            st.markdown(f"**Sentiment:** <span style='color:{sentiment_color}'>{row['sentiment']}</span>",
+                                        unsafe_allow_html=True)
+                            st.markdown("---")
 
-            with col2:
-                with st.container(border=True):
-                    st.subheader("Sentiment")
+                with col2:
+                    with st.container(border=True):
+                        st.subheader("Sentiment")
 
-                    sentiment_counts = df["sentiment"].value_counts(normalize=True) * 100
-                    labels = sentiment_counts.index.tolist()
-                    values = sentiment_counts.values.tolist()
+                        sentiment_counts = df["sentiment"].value_counts(normalize=True) * 100
+                        labels = sentiment_counts.index.tolist()
+                        values = sentiment_counts.values.tolist()
 
-                    # Donut chart
-                    fig = go.Figure(data=[go.Pie(labels=labels, values=values, hole=0.5)])
-                    fig.update_layout(showlegend=True)
-                    st.plotly_chart(fig, use_column_width=True)
+                        # Donut chart
+                        fig = go.Figure(data=[go.Pie(labels=labels, values=values, hole=0.5)])
+                        fig.update_layout(showlegend=True)
+                        st.plotly_chart(fig, use_column_width=True)
 
-                    # Summary
-                    st.subheader("Sentiment Summary")
-                    for label, value in zip(labels, values):
-                        st.write(f"**{label}:** {value:.2f}%")
+                        # Summary
+                        st.subheader("Sentiment Summary")
+                        for label, value in zip(labels, values):
+                            st.write(f"**{label}:** {value:.2f}%")
 
         with aiInsight:
             if ticker:
@@ -667,69 +671,3 @@ def main():
                     # ---------------- LEFT: Bullet Charts ---------------- #
                     with col1:
                         st.subheader(f"Key Parameters for {ticker}")
-
-                        fig = make_subplots(
-                            rows=len(parameters),
-                            cols=1,
-                            shared_xaxes=False,
-                            vertical_spacing=0.08,
-                            specs=[[{"type": "indicator"}] for _ in parameters]
-                        )
-
-                        row = 1
-                        for param, (value, target) in parameters.items():
-                            fig.add_trace(
-                                go.Indicator(
-                                    mode="number+gauge",
-                                    value=value,
-                                    number={'prefix': f"{param}: ", 'font': {'size': 12}},
-                                    gauge={
-                                        'shape': "bullet",
-                                        'axis': {'range': [0, target * 1.5]},
-                                        'bar': {'color': "royalblue"},
-                                        'threshold': {
-                                            'line': {'color': "red", 'width': 2},
-                                            'thickness': 0.7,
-                                            'value': target
-                                        }
-                                    }
-                                ),
-                                row=row,
-                                col=1
-                            )
-                            row += 1
-
-                        fig.update_layout(
-                            height=70 * len(parameters),
-                            margin=dict(l=10, r=10, t=10, b=10),
-                            showlegend=False
-                        )
-
-                        st.plotly_chart(fig, use_column_width=True)
-
-                    # ---------------- RIGHT: AI Insights ---------------- #
-                    with col2:
-                        st.subheader("AI-Generated Insights")
-                        time_option = st.selectbox("Select Time Horizon:", ["1 Year", "3 Year", "5 Year", "7 Year"])
-
-                        if st.button("Generate Insights"):
-                            prompt = f"""Analyze the stock {ticker} for a {time_option} horizon. 
-                            Here are the parameters:
-
-                            - P/E Ratio: {parameters['P/E Ratio'][0]} (Target: {parameters['P/E Ratio'][1]})
-                            - EPS Growth %: {parameters['EPS Growth %'][0]} (Target: {parameters['EPS Growth %'][1]})
-                            - Volatility (Beta): {parameters['Volatility (Beta)'][0]} (Target: {parameters['Volatility (Beta)'][1]})
-                            - Debt/Equity: {parameters['Debt/Equity'][0]} (Target: {parameters['Debt/Equity'][1]})
-
-                            Provide insights in bullet points.
-                            """
-
-                            insights = FetchPrice.get_response(prompt, history=[])
-                            st.markdown("### 📌 Insights")
-                            st.markdown(insights)
-
-                except Exception as e:
-                    st.error(f"Error fetching data for {ticker}: {e}")
-
-if __name__ == "__main__":
-    main()
