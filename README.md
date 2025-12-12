@@ -169,5 +169,17 @@ Building AI-powered financial tools.
 GitHub: [SohanBhattacharya](https://github.com/SohanBhattacharya)
 
 ````
+````
+![WhatsApp Image 2025-11-23 at 8 20 30 PM (1)](https://github.com/user-attachments/assets/f1ca2d17-2e90-47ab-a30f-3e2a765a7139)
 
+![WhatsApp Image 2025-11-23 at 8 20 30 PM (2)](https://github.com/user-attachments/assets/0e01cad4-fa6e-4b71-ab71-a48198333e9a)
 
+![WhatsApp Image 2025-11-23 at 8 20 30 PM (3)](https://github.com/user-attachments/assets/7f2f9be5-c5fa-42b5-a764-984e97171bb6)
+
+![WhatsApp Image 2025-11-23 at 8 20 30 PM (4)](https://github.com/user-attachments/assets/59b46e46-f214-484f-8548-9e7e90ed0369)
+
+![WhatsApp Image 2025-11-23 at 8 20 30 PM (5)](https://github.com/user-attachments/assets/25a29e7d-75e7-42d1-8434-1fb9df3eba18)
+
+![WhatsApp Image 2025-11-23 at 8 20 30 PM (6)](https://github.com/user-attachments/assets/7869ef3f-43ba-4e51-834c-f2ea0a6d3437)
+
+![WhatsApp Image 2025-11-23 at 8 20 30 PM](https://github.com/user-attachments/assets/f93f8c6d-2d82-4ac2-891e-4c4a4484f910)
