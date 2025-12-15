@@ -24,9 +24,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Dropout
 from tensorflow.keras.callbacks import EarlyStopping
 
-def main():
-
-
+if __name__ == "__main__":
     # ---------------------------------- App Icon and Image Start --------------------------------------
     st.set_page_config(page_title="WhiteDragon AI", layout="wide")
 
@@ -774,5 +772,3 @@ def main():
             except Exception as e:
                 st.error(f"Error fetching data for {ticker}: {e}")
 
-if __name__ == "__main__":
-    main()
