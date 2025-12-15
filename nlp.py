@@ -1,5 +1,5 @@
 import requests
-from bs4 import BeautifulSoup
+import xml.etree.ElementTree as ET
 from textblob import TextBlob
 
 
@@ -8,43 +8,37 @@ class NewsAndSentimentAnalysis:
     @staticmethod
     def fetch_google_news(ticker, num_articles=10):
         """
-        Fetch Google News articles for a ticker and return list of dicts with:
-        title, summary, link, sentiment
+        Fetch Google News articles for a ticker using RSS feed.
+        Sentiment is derived ONLY from the news title.
         """
 
-        url = f"https://news.google.com/search?q={ticker}&hl=en-IN&gl=IN&ceid=IN:en"
+        rss_url = (
+            "https://news.google.com/rss/search?"
+            f"q={ticker}&hl=en-IN&gl=IN&ceid=IN:en"
+        )
 
         try:
-            response = requests.get(url, timeout=10)
-            soup = BeautifulSoup(response.text, "html.parser")
+            response = requests.get(rss_url, timeout=10)
+            response.raise_for_status()
+            root = ET.fromstring(response.content)
         except Exception as e:
-            return [{"title": "Error fetching news", "summary": str(e), "link": "", "sentiment": "Neutral"}]
+            return [{
+                "title": "Error fetching news",
+                "summary": str(e),
+                "link": "",
+                "sentiment": "Neutral"
+            }]
 
         articles = []
-        items = soup.select("article")[:num_articles]
+        items = root.findall(".//item")[:num_articles]
 
         for item in items:
-            # Extract title safely
-            title_tag = item.select_one("h3")
-            title = title_tag.text.strip() if title_tag else "No Title"
+            title = item.findtext("title", "No Title").strip()
+            summary = item.findtext("description", "").strip()
+            link = item.findtext("link", "").strip()
 
-            # Extract short summary (if available)
-            summary_tag = item.select_one(".HO8did")
-            summary = summary_tag.text.strip() if summary_tag else ""
-
-            # Extract link safely
-            link_tag = item.find("a")
-            link = ""
-            if link_tag and link_tag.get("href"):
-                href = link_tag["href"]
-                if href.startswith("./"):     # standard Google News relative link
-                    link = "https://news.google.com" + href[1:]
-                elif href.startswith("http"):
-                    link = href
-
-            # Perform sentiment on title + summary together
-            combined_text = f"{title}. {summary}".strip()
-            sentiment = NewsAndSentimentAnalysis.analyze_sentiment(combined_text)
+            # 🔹 SENTIMENT FROM TITLE ONLY
+            sentiment = NewsAndSentimentAnalysis.analyze_sentiment(title)
 
             articles.append({
                 "title": title,
@@ -53,7 +47,6 @@ class NewsAndSentimentAnalysis:
                 "sentiment": sentiment
             })
 
-        # If no articles found → return fallback structure
         if not articles:
             return [{
                 "title": "No news found",
@@ -65,17 +58,20 @@ class NewsAndSentimentAnalysis:
         return articles
 
     @staticmethod
-    def analyze_sentiment(text):
+    def analyze_sentiment(title):
         """
-        Analyze sentiment using TextBlob.
+        Analyze sentiment of a news headline using TextBlob.
         Returns: Positive / Negative / Neutral
         """
-        try:
-            blob = TextBlob(text)
-            polarity = blob.sentiment.polarity
-        except:
+        if not title:
             return "Neutral"
 
+        try:
+            polarity = TextBlob(title).sentiment.polarity
+        except Exception:
+            return "Neutral"
+
+        # Headline-optimized thresholds
         if polarity > 0.05:
             return "Positive"
         elif polarity < -0.05:
